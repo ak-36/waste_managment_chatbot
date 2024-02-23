@@ -5,7 +5,7 @@ import openai
 from llama_index.core import SimpleDirectoryReader
 
 st.set_page_config(page_title="Chat with the Streamlit docs, powered by LlamaIndex", page_icon="🦙", layout="centered", initial_sidebar_state="auto", menu_items=None)
-openai.api_key = "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"
+openai.api_key = ""
 st.title("Chat with the Streamlit docs, powered by LlamaIndex 💬🦙")
 st.info("Check out the full tutorial to build this app in our [blog post](https://blog.streamlit.io/build-a-chatbot-with-custom-data-sources-powered-by-llamaindex/)", icon="📃")
          
