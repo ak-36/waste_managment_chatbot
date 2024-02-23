@@ -3,6 +3,7 @@ from llama_index.core import VectorStoreIndex, ServiceContext, Document
 from llama_index.llms.openai import OpenAI
 import openai
 from llama_index.core import SimpleDirectoryReader
+from llama_index.core.memory import ChatMemoryBuffer
 
 st.set_page_config(page_title="Waste Management Chatbot", page_icon="🦙", layout="centered", initial_sidebar_state="auto", menu_items=None)
 openai.api_key = st.secrets.openai_key
@@ -19,14 +20,15 @@ def load_data():
     with st.spinner(text="Loading and indexing the Streamlit docs – hang tight! This should take 1-2 minutes."):
         reader = SimpleDirectoryReader(input_files=["waste_managment_kb.pdf"], recursive=True)
         docs = reader.load_data()
-        service_context = ServiceContext.from_defaults(llm=OpenAI(model="gpt-3.5-turbo", temperature=0.5, system_prompt="You are an assistant who is expert in waste management. Keep your answers technical and based on facts – do not hallucinate features."))
+        service_context = ServiceContext.from_defaults(llm=OpenAI(model="gpt-3.5-turbo", temperature=0.1, system_prompt="You are an assistant who is expert in waste management. Keep your answers technical and based on facts – do not hallucinate features."))
         index = VectorStoreIndex.from_documents(docs, service_context=service_context)
         return index
 
 index = load_data()
 
 if "chat_engine" not in st.session_state.keys(): # Initialize the chat engine
-        st.session_state.chat_engine = index.as_chat_engine(chat_mode="context", system_prompt="You are an expert in waste management, who performs friendly conversations with the user. If you do not find any answers to the question just say 'Please ask something related to Waste Management'", verbose=True)
+         memory = ChatMemoryBuffer.from_defaults(token_limit=15000)
+         st.session_state.chat_engine = index.as_chat_engine(chat_mode="context", memory=memory, system_prompt="You are an expert in waste management, who performs friendly conversations with the user. If you do not find any answers to the question just say 'Please ask something related to Waste Management'", verbose=True)
 
 if prompt := st.chat_input("Your question"): # Prompt for user input and save to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
